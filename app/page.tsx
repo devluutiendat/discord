@@ -1,10 +1,9 @@
 import InitiaModal from "@/components/modals/initia-modal";
-
 import prisma from "@/lib/utils/db";
-import { RedirectToSignIn } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import Loading from "./loading";
 async function SetupPage() {
   const user = await currentUser();
 
@@ -27,14 +26,14 @@ async function SetupPage() {
     where: { members: { some: { profileId: user.id } } },
   });
 
-  if (server) return redirect(`/server/${server.id}`);
-  return <InitiaModal />;
+  if (server) return redirect(`/servers/${server.id}`);
+  return <InitiaModal open={true} />;
 }
 
 export default function page() {
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading />}>
         <SetupPage />
       </Suspense>
     </>

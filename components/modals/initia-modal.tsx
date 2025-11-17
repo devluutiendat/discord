@@ -13,18 +13,24 @@ import { CloudUpload } from "lucide-react";
 import Image from "next/image";
 import { useUploadThing } from "@/lib/utils/uploadthing";
 import { createServer } from "@/lib/actions/server-action";
+import { useRouter } from "next/navigation";
 
-export default function InitiaModal() {
+interface modalProp {
+  open: boolean;
+  setOpen?: () => void;
+}
+export default function InitiaModal({ open, setOpen }: modalProp) {
   const [serverName, setServerName] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [open, setOpen] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res) => {
-      createServer({
+  const router = useRouter();
+  const { startUpload } = useUploadThing("imageUploader", {
+    onClientUploadComplete: async (res) => {
+      const serverId = await createServer({
         name: serverName,
         imageUrl: res[0].ufsUrl,
       });
+      router.push(`/servers/${serverId}`);
     },
   });
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +49,7 @@ export default function InitiaModal() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => setOpen(false)}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md p-6">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
