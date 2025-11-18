@@ -4,6 +4,7 @@ import prisma from "../utils/db";
 import { v4 as uuidv4 } from "uuid";
 import { MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { channels } from "./channel-action";
 
 export async function createServer(data: { name: string; imageUrl: string }) {
   const { name, imageUrl } = data;
@@ -40,26 +41,45 @@ export async function createServer(data: { name: string; imageUrl: string }) {
   }
 }
 
-export async function serverList() {
+export async function getServerList() {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
-  try {
-    const servers = await prisma.server.findMany({
-      where: {
-        profileId: user.id,
+  const servers = await prisma.server.findMany({
+    where: {
+      profileId: user.id,
+    },
+    select: {
+      id: true,
+      imageUrl: true,
+      name: true
+    },
+  });
+  return {
+    servers: servers,
+    user: user.imageUrl,
+  };
+}
+
+export async function getServerDetailsById(serverId: string) {
+  const server = await prisma.server.findUnique({
+    where: { id: serverId },
+    select: {
+      name: true,
+      inviteCode: true,
+      channels: {
+        select: {
+          id: true,
+          name: true,
+          type: true,
+        },
       },
-      select: {
-        id: true,
-        imageUrl: true,
-        name: true
-      },
-    });
-    return {
-      servers: servers,
-      user: user.imageUrl,
-    };
-  } catch (error) {
-    throw new Error("Failed to load servers");
+    },
+  });
+  if(server) return server;
+  else return {
+    name :"",
+    inviteCode : "",
+    channels:[]
   }
 }

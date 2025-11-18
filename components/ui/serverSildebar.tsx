@@ -17,12 +17,12 @@ interface server {
 interface serverListProps {
   servers: server[];
   userImageUrl: string;
-  currentId: string;
+  currentServerId: string;
 }
 export function ServerList({
   servers,
   userImageUrl,
-  currentId,
+  currentServerId,
 }: serverListProps) {
   const [modal, setModal] = useState(false);
   return (
@@ -63,7 +63,7 @@ export function ServerList({
             href={`/servers/${server.id}`}
             className={cn(
               "relative group px-3",
-              currentId === server.id &&
+              currentServerId === server.id &&
                 "after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-1 after:h-6 after:bg-white after:rounded-r"
             )}
           >
