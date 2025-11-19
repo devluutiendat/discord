@@ -4,7 +4,6 @@ import prisma from "../utils/db";
 import { v4 as uuidv4 } from "uuid";
 import { MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { channels } from "./channel-action";
 
 export async function createServer(data: { name: string; imageUrl: string }) {
   const { name, imageUrl } = data;
@@ -41,6 +40,28 @@ export async function createServer(data: { name: string; imageUrl: string }) {
   }
 }
 
+export async function updateServer(data: { name: string; imageUrl: string, serverId : string }) {
+  const { name, imageUrl, serverId } = data;
+  const user = await currentUser();
+  if (!user) return redirect("sign-in");
+  try {
+    await prisma.server.update({
+      where:{
+        id: serverId
+      },
+      data: {
+        name,
+        imageUrl,
+      },
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Internal Server Error",
+    };
+  }
+}
+
 export async function getServerList() {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
@@ -52,7 +73,13 @@ export async function getServerList() {
     select: {
       id: true,
       imageUrl: true,
-      name: true
+      name: true,
+      channels: {
+        orderBy: { createdAt: "asc" },
+        take: 1,
+        select: { id: true },
+      },
+
     },
   });
   return {
@@ -76,10 +103,14 @@ export async function getServerDetailsById(serverId: string) {
       },
     },
   });
-  if(server) return server;
+  if (server) return server;
   else return {
-    name :"",
-    inviteCode : "",
-    channels:[]
+    name: "",
+    inviteCode: "",
+    channels: []
   }
 }
+
+export async function deleteServer(){
+}
+

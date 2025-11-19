@@ -1,4 +1,4 @@
-import InitiaModal from "@/components/modals/initia-modal";
+import InitiaModal from "@/components/modals/serverModal";
 import prisma from "@/lib/utils/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -23,10 +23,23 @@ async function SetupPage() {
     });
   }
   const server = await prisma.server.findFirst({
-    where: { members: { some: { profileId: user.id } } },
+    where: {
+      members: {
+        some: { profileId: user.id },
+      },
+    },
+    select: {
+      id: true,
+      channels: {
+        orderBy: { createdAt: "asc" },
+        take: 1,
+        select: { id: true },
+      },
+    },
   });
 
-  if (server) return redirect(`/servers/${server.id}`);
+  if (server)
+    return redirect(`/servers/${server.id}/${server.channels[0]?.id}`);
   return <InitiaModal open={true} />;
 }
 

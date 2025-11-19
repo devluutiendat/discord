@@ -6,20 +6,24 @@ import { useState } from "react";
 import { cn } from "@/lib/utils/utils";
 import Image from "next/image";
 import { AvatarImage } from "@radix-ui/react-avatar";
-import InitiaModal from "../modals/initia-modal";
+import InitiaModal from "../modals/serverModal";
 import Loading from "@/app/loading";
 import Link from "next/link";
 
+interface channel {
+  id: string;
+}
 interface server {
   id: string;
   imageUrl: string;
+  channels: channel[];
 }
 interface serverListProps {
   servers: server[];
   userImageUrl: string;
   currentServerId: string;
 }
-export function ServerList({
+export default function ServerList({
   servers,
   userImageUrl,
   currentServerId,
@@ -60,7 +64,7 @@ export function ServerList({
         {servers.map((server) => (
           <Link
             key={server.id}
-            href={`/servers/${server.id}`}
+            href={`/servers/${server.id}/${server.channels[0].id}`}
             className={cn(
               "relative group px-3",
               currentServerId === server.id &&

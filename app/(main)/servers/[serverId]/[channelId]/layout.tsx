@@ -1,4 +1,4 @@
-import { ChannelSidebar } from "@/components/ui/channelSlidebar";
+import ChannelSidebar from "@/components/ui/channelSidebar";
 import { getServerDetailsById } from "@/lib/actions/server-action";
 
 export default async function Layout({
@@ -10,7 +10,6 @@ export default async function Layout({
 }) {
   const { serverId, channelId } = await params;
   const serverDetails = await getServerDetailsById(serverId);
-  console.log(serverId);
 
   return (
     <div>

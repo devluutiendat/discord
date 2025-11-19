@@ -18,8 +18,9 @@ import { useRouter } from "next/navigation";
 interface modalProp {
   open: boolean;
   setOpen?: () => void;
+  serverId?: string;
 }
-export default function InitiaModal({ open, setOpen }: modalProp) {
+export default function serverModal({ open, setOpen }: modalProp) {
   const [serverName, setServerName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

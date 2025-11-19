@@ -1,4 +1,4 @@
-import { ServerList } from "@/components/ui/serverSildebar";
+import ServerList from "@/components/ui/serverSidebar";
 import { getServerList } from "@/lib/actions/server-action";
 
 export default async function Layout({
@@ -6,14 +6,14 @@ export default async function Layout({
   params,
 }: {
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ serverId: string }>;
 }) {
   const { servers, user: userImageUrl } = await getServerList();
-  const { slug } = params;
+  const { serverId } = await params;
   return (
     <div className="flex h-screen bg-background">
       <ServerList
-        currentServerId={slug}
+        currentServerId={serverId}
         servers={servers}
         userImageUrl={userImageUrl}
       />
