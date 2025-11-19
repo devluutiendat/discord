@@ -68,7 +68,11 @@ export async function getServerList() {
 
   const servers = await prisma.server.findMany({
     where: {
-      profileId: user.id,
+      members:{
+        some:{
+          profileId: user.id
+        }
+      }
     },
     select: {
       id: true,
@@ -109,6 +113,19 @@ export async function getServerDetailsById(serverId: string) {
     inviteCode: "",
     channels: []
   }
+}
+
+export async function generateInviteCode(serverId: string) {
+  const newInviteCode = uuidv4();
+  const profile = await currentUser();
+  if (!profile) return redirect("sign-in");
+  await prisma.server.update({
+    where: { id: serverId , profileId : profile.id},
+    data: {
+      inviteCode: newInviteCode,
+    },
+  });
+  return newInviteCode
 }
 
 export async function deleteServer(){

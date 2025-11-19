@@ -1,5 +1,4 @@
 import ChannelSidebar from "@/components/ui/channelSidebar";
-import { getServerDetailsById } from "@/lib/actions/server-action";
 
 export default async function Layout({
   children,
@@ -9,15 +8,9 @@ export default async function Layout({
   params: Promise<{ serverId: string; channelId: string }>;
 }) {
   const { serverId, channelId } = await params;
-  const serverDetails = await getServerDetailsById(serverId);
-
   return (
     <div>
-      <ChannelSidebar
-        serverName={serverDetails.name}
-        inviteCode={serverDetails.inviteCode}
-        channels={serverDetails.channels}
-      />
+      <ChannelSidebar serverId={serverId} channelId={channelId} />
       {children}
     </div>
   );

@@ -18,18 +18,22 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { deleteServer } from "@/lib/actions/server-action";
-import ManageMembersModal from "../modals/memberModal";
-import CreateChannelModal from "../modals/channelModal";
+// import ManageMembersModal from "../modals/memberModal";
+// import CreateChannelModal from "../modals/channelModal";
 import InviteModal from "../modals/inviteModal";
 
-export function ServerOptions() {
+interface ServerOptionProps {
+  inviteCode: string;
+  serverId: string;
+}
+export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
   const [channelModal, setchannelModal] = useState(false);
   const [memberModal, setMemberModal] = useState(false);
+  const [inviteModal, setInviteModal] = useState(false);
 
   const onDeleteServer = async () => {
     await deleteServer();
   };
-  const onInvitePeople = () => {};
   const onServerSettings = () => {};
   return (
     <DropdownMenu>
@@ -43,7 +47,10 @@ export function ServerOptions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={onInvitePeople} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => setInviteModal(true)}
+          className="cursor-pointer"
+        >
           <UserPlus className="mr-2 h-4 w-4" />
           <span>Invite People</span>
         </DropdownMenuItem>
@@ -79,9 +86,14 @@ export function ServerOptions() {
           <span>Delete Server</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <ManageMembersModal />
-      <CreateChannelModal />
-      <InviteModal />
+      {/* <ManageMembersModal />
+      <CreateChannelModal /> */}
+      <InviteModal
+        open={inviteModal}
+        inviteCode={inviteCode}
+        serverId={serverId}
+        onclose={() => setInviteModal(false)}
+      />
     </DropdownMenu>
   );
 }
