@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,61 +12,102 @@ import {
 import { CloudUpload } from "lucide-react";
 import Image from "next/image";
 import { useUploadThing } from "@/lib/utils/uploadthing";
-import { createServer } from "@/lib/actions/server-action";
+import {
+  createServer,
+  getDetail,
+  updateServer,
+} from "@/lib/actions/server-action";
 import { useRouter } from "next/navigation";
 
-interface modalProp {
+interface ModalProps {
   open: boolean;
-  setOpen?: () => void;
+  setOpen?: (value: boolean) => void;
   serverId?: string;
 }
-export default function ServerModal({ open, setOpen }: modalProp) {
+
+export default function ServerModal({ open, setOpen, serverId }: ModalProps) {
   const [serverName, setServerName] = useState("");
+  const [oldImage, setOldImage] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const isEditMode = Boolean(serverId);
+
   const { startUpload } = useUploadThing("imageUploader", {
     onClientUploadComplete: async (res) => {
-      const serverId = await createServer({
-        name: serverName,
-        imageUrl: res[0].ufsUrl,
-      });
-      router.push(`/servers/${serverId}`);
+      const imageUrl = res?.[0]?.ufsUrl ?? null;
+
+      if (isEditMode) {
+        await updateServer({ name: serverName, imageUrl, serverId: serverId! });
+      } else {
+        const newId = await createServer({ name: serverName, imageUrl });
+        router.push(`/servers/${newId}`);
+      }
+
+      setOpen?.(false);
     },
   });
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       setFile(e.target.files[0]);
+      setOldImage(null);
     }
   };
 
-  const handleCreate = () => {
+  const handleSubmit = async () => {
     try {
-      if (!file) return console.log("No file selected");
-      startUpload([file]);
+      if (isEditMode && !file && oldImage) {
+        await updateServer({
+          name: serverName,
+          imageUrl: null,
+          serverId: serverId!,
+        });
+        setOpen?.(false);
+        return;
+      }
+
+      if (file) {
+        startUpload([file]);
+        return;
+      }
+
+      if (!isEditMode) {
+        console.log("No file selected");
+        return;
+      }
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!serverId) return;
+    async function load() {
+      const detail = await getDetail(serverId as string);
+      if (detail) {
+        setServerName(detail.name);
+        setOldImage(detail.imageUrl);
+      }
+    }
+
+    load();
+  }, [serverId]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md p-6">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
-            Customize your server
+            {isEditMode ? "Edit Server" : "Create Server"}
           </DialogTitle>
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            Give your server a personality with a name and an icon. You can
-            always change it later.
-          </p>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* File Upload Area */}
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors `}
-          >
+          {/* Upload Area */}
+          <div className="border-2 border-dashed rounded-lg p-8 text-center">
             <input
               ref={fileInputRef}
               type="file"
@@ -78,6 +119,14 @@ export default function ServerModal({ open, setOpen }: modalProp) {
             {file ? (
               <Image
                 src={URL.createObjectURL(file)}
+                alt="Upload preview"
+                width={96}
+                height={96}
+                className="w-24 h-24 mx-auto mb-3 rounded-full object-cover"
+              />
+            ) : oldImage ? (
+              <Image
+                src={oldImage}
                 alt="Server Icon"
                 width={96}
                 height={96}
@@ -87,42 +136,35 @@ export default function ServerModal({ open, setOpen }: modalProp) {
               <CloudUpload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
             )}
 
-            <div className="space-y-2">
-              <p className="text-blue-600 font-medium text-sm">Choose files</p>
-              <p className="text-xs text-muted-foreground">(image 4MB)</p>
-            </div>
-
             <Button
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white w-full"
+              className="mt-4 w-full"
               size="sm"
             >
               Upload
             </Button>
           </div>
 
-          {/* Server Name Input */}
+          {/* Name Input */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground tracking-wide">
+            <label className="text-xs font-semibold tracking-wide">
               SERVER NAME
             </label>
             <Input
-              placeholder="Enter server name"
               value={serverName}
               onChange={(e) => setServerName(e.target.value)}
-              className="bg-muted/50 border-input"
+              placeholder="Enter server name"
             />
           </div>
         </div>
 
-        {/* Create Button */}
         <div className="flex justify-end">
           <Button
-            onClick={handleCreate}
             disabled={!serverName.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white min-w-24"
+            onClick={handleSubmit}
+            className="min-w-24"
           >
-            Create
+            {isEditMode ? "Update" : "Create"}
           </Button>
         </div>
       </DialogContent>

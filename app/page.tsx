@@ -1,13 +1,11 @@
 import prisma from "@/lib/utils/db";
-import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "./loading";
 import ServerModal from "@/components/modals/serverModal";
+import { userCurrent } from "@/lib/utils/currentUser";
 async function SetupPage() {
-  const user = await currentUser();
-
-  if (!user) return redirect("/sign-in");
+  const user = await userCurrent();
 
   const profile = await prisma.profile.findUnique({
     where: { id: user.id },

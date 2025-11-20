@@ -26,9 +26,7 @@ export async function deleteMember(memberId: string) {
 export async function updateMemberRole(
   memberId : string,
   role: MemberRole
-) {
-  console.log("this is ", memberId,role);
-  
+) {  
      await prisma.member.update({
       where: {
         id : memberId

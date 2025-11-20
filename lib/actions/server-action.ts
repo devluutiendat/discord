@@ -1,14 +1,13 @@
 "use server";
-import { currentUser } from "@clerk/nextjs/server";
 import prisma from "../utils/db";
 import { v4 as uuidv4 } from "uuid";
 import { MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { userCurrent } from "../utils/currentUser";
 
 export async function createServer(data: { name: string; imageUrl: string }) {
   const { name, imageUrl } = data;
-  const user = await currentUser();
-  if (!user) return redirect("sign-in");
+  const user = await userCurrent();
   try {
     const server = await prisma.server.create({
       data: {
@@ -31,7 +30,7 @@ export async function createServer(data: { name: string; imageUrl: string }) {
         },
       },
     });
-    return server.id
+    return server.id;
   } catch (error) {
     return {
       status: 500,
@@ -40,18 +39,21 @@ export async function createServer(data: { name: string; imageUrl: string }) {
   }
 }
 
-export async function updateServer(data: { name: string; imageUrl: string, serverId : string }) {
+export async function updateServer(data: {
+  name: string;
+  imageUrl: string | null;
+  serverId: string;
+}) {
   const { name, imageUrl, serverId } = data;
-  const user = await currentUser();
-  if (!user) return redirect("sign-in");
+  const user = await userCurrent();
   try {
     await prisma.server.update({
-      where:{
-        id: serverId
+      where: {
+        id: serverId,
       },
       data: {
         name,
-        imageUrl,
+        ...(imageUrl !== null && { imageUrl }),
       },
     });
   } catch (error) {
@@ -63,16 +65,15 @@ export async function updateServer(data: { name: string; imageUrl: string, serve
 }
 
 export async function getServerList() {
-  const user = await currentUser();
+  const user = await userCurrent();
   if (!user) redirect("/sign-in");
-
   const servers = await prisma.server.findMany({
     where: {
-      members:{
-        some:{
-          profileId: user.id
-        }
-      }
+      members: {
+        some: {
+          profileId: user.id,
+        },
+      },
     },
     select: {
       id: true,
@@ -83,16 +84,16 @@ export async function getServerList() {
         take: 1,
         select: { id: true },
       },
-
     },
   });
-  return servers
+  return servers;
 }
 
 export async function getServerDetailsById(serverId: string) {
   const server = await prisma.server.findUnique({
     where: { id: serverId },
     select: {
+      profileId: true,
       name: true,
       inviteCode: true,
       channels: {
@@ -105,26 +106,44 @@ export async function getServerDetailsById(serverId: string) {
     },
   });
   if (server) return server;
-  else return {
-    name: "",
-    inviteCode: "",
-    channels: []
-  }
+  else
+    return {
+      profileId: "",
+      name: "",
+      inviteCode: "",
+      channels: [],
+    };
 }
 
 export async function generateInviteCode(serverId: string) {
   const newInviteCode = uuidv4();
-  const profile = await currentUser();
-  if (!profile) return redirect("sign-in");
+  const profile = await userCurrent();
   await prisma.server.update({
-    where: { id: serverId , profileId : profile.id},
+    where: { id: serverId, profileId: profile.id },
     data: {
       inviteCode: newInviteCode,
     },
   });
-  return newInviteCode
+  return newInviteCode;
 }
 
-export async function deleteServer(){
+export async function deleteServer(serverId: string) {
+  await prisma.server.delete({
+    where: {
+      id: serverId,
+    },
+  });
 }
 
+export async function getDetail(serverId: string) {
+  const detail = await prisma.server.findUnique({
+    where: {
+      id: serverId,
+    },
+    select: {
+      name: true,
+      imageUrl: true,
+    },
+  });
+  return detail;
+}

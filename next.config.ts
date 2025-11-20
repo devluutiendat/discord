@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.clerk.com",
       },
+      {
+        protocol:"https",
+        hostname:"9mga63m9jc.ufs.sh"
+      }
     ],
   },
 };

@@ -1,5 +1,5 @@
 import ServerList from "@/components/ui/serverSidebar";
-import { currentUser } from "@clerk/nextjs/server";
+import { userCurrent } from "@/lib/utils/currentUser";
 
 export default async function Layout({
   children,
@@ -9,10 +9,10 @@ export default async function Layout({
   params: Promise<{ serverId: string }>;
 }) {
   const { serverId } = await params;
-  const user = await currentUser();
+  const user = await userCurrent();
   return (
     <div className="flex h-screen bg-background">
-      <ServerList currentServerId={serverId} userImageUrl={user!.imageUrl} />
+      <ServerList currentServerId={serverId} userImageUrl={user.imageUrl} />
       {children}
     </div>
   );

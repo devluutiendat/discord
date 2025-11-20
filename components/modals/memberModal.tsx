@@ -45,7 +45,6 @@ export function ManageMembersModal({
     const fetchData = async () => {
       const res = await getMembers(serverId);
       setMembers(res);
-      console.log("this is ", res);
     };
     fetchData();
   }, []);

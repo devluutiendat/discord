@@ -1,5 +1,5 @@
+import { userCurrent } from "@/lib/utils/currentUser";
 import prisma from "@/lib/utils/db";
-import { currentUser } from "@clerk/nextjs/server";
 import { MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
 
@@ -9,10 +9,9 @@ export default async function Layout({
   params: Promise<{ inviteCode: string }>;
 }) {
   const { inviteCode } = await params;
-  const user = await currentUser();
+  const user = await userCurrent();
 
   if (!inviteCode) redirect("/");
-  if (!user) redirect("/sign-in");
 
   const server = await prisma.server.findUnique({
     where: { inviteCode },

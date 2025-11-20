@@ -1,15 +1,9 @@
-import { ChannelType } from "@prisma/client";
 import { ServerOptions } from "./serverOptions";
 import SearchBar from "./searchBar";
 import User from "./user";
 import { getServerDetailsById } from "@/lib/actions/server-action";
 import ChannelList from "./channelList";
-
-export interface channelDetail {
-  name: string;
-  type: ChannelType;
-  id: string;
-}
+import { userCurrent } from "@/lib/utils/currentUser";
 
 interface ChannelSidebarProps {
   channelId: string;
@@ -21,6 +15,8 @@ export default async function ChannelSidebar({
   serverId,
 }: ChannelSidebarProps) {
   const serverDetails = await getServerDetailsById(serverId);
+  const user = await userCurrent();
+
   return (
     <aside className="fixed left-20 top-0 h-screen w-72 bg-slate-800 border-r border-slate-700 flex flex-col">
       {/* Header with Server Info */}
@@ -32,6 +28,7 @@ export default async function ChannelSidebar({
           <ServerOptions
             inviteCode={serverDetails.inviteCode}
             serverId={serverId}
+            admin={user.id === serverDetails.profileId}
           />
         </div>
 

@@ -25,17 +25,21 @@ import ServerModal from "../modals/serverModal";
 interface ServerOptionProps {
   inviteCode: string;
   serverId: string;
+  admin: boolean;
 }
-export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
+export function ServerOptions({
+  inviteCode,
+  serverId,
+  admin,
+}: ServerOptionProps) {
   const [channelModal, setchannelModal] = useState(false);
   const [memberModal, setMemberModal] = useState(false);
   const [inviteModal, setInviteModal] = useState(false);
   const [serverModal, setServerModal] = useState(false);
 
   const onDeleteServer = async () => {
-    await deleteServer();
+    await deleteServer(serverId);
   };
-  const onServerSettings = () => {};
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,35 +52,41 @@ export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem
-          onClick={() => setInviteModal(true)}
-          className="cursor-pointer"
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          <span>Invite People</span>
-        </DropdownMenuItem>
+        {admin && (
+          <>
+            <DropdownMenuItem
+              onClick={() => setInviteModal(true)}
+              className="cursor-pointer"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              <span>Invite People</span>
+            </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={onServerSettings} className="cursor-pointer">
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Server Settings</span>
-        </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setServerModal(true)}
+              className="cursor-pointer"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Server Settings</span>
+            </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={() => setMemberModal(true)}
-          className="cursor-pointer"
-        >
-          <Users className="mr-2 h-4 w-4" />
-          <span>Manage Members</span>
-        </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setMemberModal(true)}
+              className="cursor-pointer"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              <span>Manage Members</span>
+            </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={() => setchannelModal(true)}
-          className="cursor-pointer"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          <span>Create Channel</span>
-        </DropdownMenuItem>
-
+            <DropdownMenuItem
+              onClick={() => setchannelModal(true)}
+              className="cursor-pointer"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              <span>Create Channel</span>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
@@ -87,23 +97,32 @@ export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
           <span>Delete Server</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <ServerModal open={serverModal} setOpen={() => setServerModal(false)} />
-      <ManageMembersModal
-        isOpen={memberModal}
-        onClose={() => setMemberModal(false)}
-        serverId={serverId}
-      />
-      <CreateChannelModal
-        serverId={serverId}
-        isOpen={channelModal}
-        onClose={() => setchannelModal(false)}
-      />
-      <InviteModal
-        open={inviteModal}
-        inviteCode={inviteCode}
-        serverId={serverId}
-        onclose={() => setInviteModal(false)}
-      />
+
+      {admin && (
+        <>
+          <ServerModal
+            open={serverModal}
+            setOpen={() => setServerModal(false)}
+            serverId={serverId}
+          />
+          <ManageMembersModal
+            isOpen={memberModal}
+            onClose={() => setMemberModal(false)}
+            serverId={serverId}
+          />
+          <CreateChannelModal
+            serverId={serverId}
+            isOpen={channelModal}
+            onClose={() => setchannelModal(false)}
+          />
+          <InviteModal
+            open={inviteModal}
+            inviteCode={inviteCode}
+            serverId={serverId}
+            onclose={() => setInviteModal(false)}
+          />
+        </>
+      )}
     </DropdownMenu>
   );
 }

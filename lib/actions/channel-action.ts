@@ -2,16 +2,14 @@
 
 import { ChannelType } from "@prisma/client";
 import prisma from "../utils/db";
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { userCurrent } from "../utils/currentUser";
 
 export const createChannel = async (
     serverId : string,
     name : string,
     type : ChannelType
 )=>{
-    const user = await currentUser()
-    if (!user) redirect("sign-in")
+    const user = await userCurrent()
     await prisma.channel.create({
         data:{
             serverId,
