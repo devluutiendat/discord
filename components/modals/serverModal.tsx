@@ -20,7 +20,7 @@ interface modalProp {
   setOpen?: () => void;
   serverId?: string;
 }
-export default function serverModal({ open, setOpen }: modalProp) {
+export default function ServerModal({ open, setOpen }: modalProp) {
   const [serverName, setServerName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

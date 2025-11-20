@@ -1,9 +1,9 @@
-import InitiaModal from "@/components/modals/serverModal";
 import prisma from "@/lib/utils/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "./loading";
+import ServerModal from "@/components/modals/serverModal";
 async function SetupPage() {
   const user = await currentUser();
 
@@ -40,7 +40,7 @@ async function SetupPage() {
 
   if (server)
     return redirect(`/servers/${server.id}/${server.channels[0]?.id}`);
-  return <InitiaModal open={true} />;
+  return <ServerModal open={true} />;
 }
 
 export default function page() {

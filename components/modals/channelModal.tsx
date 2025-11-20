@@ -17,23 +17,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { createChannel } from "@/lib/actions/channel-action";
+import { ChannelType } from "@prisma/client";
 
 interface CreateChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
+  serverId: string;
 }
 
 export function CreateChannelModal({
   isOpen,
   onClose,
+  serverId,
 }: CreateChannelModalProps) {
   const [channelName, setChannelName] = useState("");
-  const [channelType, setChannelType] = useState("text");
+  const [channelType, setChannelType] = useState<ChannelType>(ChannelType.TEXT);
 
-  const handleCreate = () => {
-    console.log("Creating channel:", { channelName, channelType });
-    setChannelName("");
-    setChannelType("text");
+  const handleCreate = async (name: string, type: ChannelType) => {
+    await createChannel(serverId, name, type);
     onClose();
   };
 
@@ -62,14 +64,23 @@ export function CreateChannelModal({
             <Label htmlFor="channel-type" className="text-sm font-semibold">
               Channel Type
             </Label>
-            <Select value={channelType} onValueChange={setChannelType}>
+            <Select
+              value={channelType}
+              onValueChange={(value) => setChannelType(value as ChannelType)}
+            >
               <SelectTrigger id="channel-type" className="bg-muted">
                 <SelectValue placeholder="Select channel type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="text">Text</SelectItem>
-                <SelectItem value="voice">Voice</SelectItem>
-                <SelectItem value="announcements">Announcements</SelectItem>
+                <SelectItem value={ChannelType.TEXT}>
+                  {ChannelType.TEXT}{" "}
+                </SelectItem>
+                <SelectItem value={ChannelType.AUDIO}>
+                  {ChannelType.AUDIO}
+                </SelectItem>
+                <SelectItem value={ChannelType.VIDEO}>
+                  {ChannelType.VIDEO}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -77,7 +88,7 @@ export function CreateChannelModal({
 
         <div className="flex justify-end pt-4">
           <Button
-            onClick={handleCreate}
+            onClick={() => handleCreate(channelName, channelType)}
             className="bg-blue-600 hover:bg-blue-700"
           >
             Create

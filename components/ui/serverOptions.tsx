@@ -19,9 +19,9 @@ import {
 import { useState } from "react";
 import { deleteServer } from "@/lib/actions/server-action";
 import { ManageMembersModal } from "../modals/memberModal";
-// import CreateChannelModal from "../modals/channelModal";
 import InviteModal from "../modals/inviteModal";
-
+import { CreateChannelModal } from "../modals/channelModal";
+import ServerModal from "../modals/serverModal";
 interface ServerOptionProps {
   inviteCode: string;
   serverId: string;
@@ -30,6 +30,7 @@ export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
   const [channelModal, setchannelModal] = useState(false);
   const [memberModal, setMemberModal] = useState(false);
   const [inviteModal, setInviteModal] = useState(false);
+  const [serverModal, setServerModal] = useState(false);
 
   const onDeleteServer = async () => {
     await deleteServer();
@@ -86,12 +87,17 @@ export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
           <span>Delete Server</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <ServerModal open={serverModal} setOpen={() => setServerModal(false)} />
       <ManageMembersModal
         isOpen={memberModal}
         onClose={() => setMemberModal(false)}
         serverId={serverId}
       />
-      {/* <CreateChannelModal /> */}
+      <CreateChannelModal
+        serverId={serverId}
+        isOpen={channelModal}
+        onClose={() => setchannelModal(false)}
+      />
       <InviteModal
         open={inviteModal}
         inviteCode={inviteCode}
