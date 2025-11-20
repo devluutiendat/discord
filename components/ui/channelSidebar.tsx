@@ -2,9 +2,8 @@ import { ChannelType } from "@prisma/client";
 import { ServerOptions } from "./serverOptions";
 import SearchBar from "./searchBar";
 import User from "./user";
-import Channels from "./channels";
 import { getServerDetailsById } from "@/lib/actions/server-action";
-import prisma from "@/lib/utils/db";
+import ChannelList from "./channelList";
 
 export interface channelDetail {
   name: string;
@@ -41,7 +40,7 @@ export default async function ChannelSidebar({
       </div>
 
       {/* Content - scrollable area */}
-      <Channels channelList={serverDetails.channels} />
+      <ChannelList channelList={serverDetails.channels} />
 
       {/* Footer - User Profile */}
       <User />

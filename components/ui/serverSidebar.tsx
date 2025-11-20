@@ -1,33 +1,19 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { cn } from "@/lib/utils/utils";
 import Image from "next/image";
-import { AvatarImage } from "@radix-ui/react-avatar";
 import InitiaModal from "../modals/serverModal";
-import Loading from "@/app/loading";
-import Link from "next/link";
+import ServerList from "./serverList";
 
-interface channel {
-  id: string;
-}
-interface server {
-  id: string;
-  imageUrl: string;
-  channels: channel[];
-}
-interface serverListProps {
-  servers: server[];
-  userImageUrl: string;
+interface serverSideserverSidebarProps {
   currentServerId: string;
+  userImageUrl: string;
 }
-export default function ServerList({
-  servers,
-  userImageUrl,
+export default function serverSidebar({
   currentServerId,
-}: serverListProps) {
+  userImageUrl,
+}: serverSideserverSidebarProps) {
   const [modal, setModal] = useState(false);
   return (
     <aside className="fixed left-0 top-0 h-screen w-20 bg-slate-950 border-r border-slate-800 flex flex-col items-center py-4 gap-2">
@@ -59,27 +45,7 @@ export default function ServerList({
       {/* Divider */}
       <div className="w-8 h-px bg-slate-700" />
 
-      {/* Server List */}
-      <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-        {servers.map((server) => (
-          <Link
-            key={server.id}
-            href={`/servers/${server.id}/${server.channels[0].id}`}
-            className={cn(
-              "relative group px-3",
-              currentServerId === server.id &&
-                "after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-1 after:h-6 after:bg-white after:rounded-r"
-            )}
-          >
-            <Avatar className="h-12 w-12">
-              <AvatarFallback>
-                <Loading />
-              </AvatarFallback>
-              <AvatarImage src={server.imageUrl} />
-            </Avatar>
-          </Link>
-        ))}
-      </div>
+      <ServerList currentServerId={currentServerId} />
 
       {/* Divider */}
       <div className="w-8 h-px bg-slate-700" />

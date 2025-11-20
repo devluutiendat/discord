@@ -86,10 +86,7 @@ export async function getServerList() {
 
     },
   });
-  return {
-    servers: servers,
-    user: user.imageUrl,
-  };
+  return servers
 }
 
 export async function getServerDetailsById(serverId: string) {

@@ -12,40 +12,32 @@ export default async function Layout({
   const user = await currentUser();
 
   if (!inviteCode) redirect("/");
-  if (!user) redirect("sign-in");
+  if (!user) redirect("/sign-in");
 
-  const server = await prisma.server.findFirst({
+  const server = await prisma.server.findUnique({
+    where: { inviteCode },
+  });
+
+  if (!server) redirect("/not-found");
+
+  const existingMember = await prisma.member.findFirst({
     where: {
-      inviteCode: inviteCode,
-      ...(inviteCode && {
-        members: {
-          some: {
-            profileId: user.id,
-          },
-        },
-      }),
+      serverId: server.id,
+      profileId: user.id,
     },
   });
 
-  if (server) redirect(`/servers/${server.id}/x`);
+  if (existingMember) {
+    redirect(`/servers/${server.id}/x`);
+  }
 
-  const newMember = await prisma.server.update({
-    where: {
-      inviteCode: inviteCode,
-    },
+  await prisma.member.create({
     data: {
-      members: {
-        create: [
-          {
-            profileId: user.id,
-            role: MemberRole.GUEST,
-          },
-        ],
-      },
+      serverId: server.id,
+      profileId: user.id,
+      role: MemberRole.GUEST,
     },
   });
 
-  if (!server) if (newMember) redirect(`/servers/${server!.id}/x`);
-
-  return null;
+  redirect(`/servers/${server.id}/x`);
 }

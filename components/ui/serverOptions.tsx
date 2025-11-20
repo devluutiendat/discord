@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { deleteServer } from "@/lib/actions/server-action";
-// import ManageMembersModal from "../modals/memberModal";
+import { ManageMembersModal } from "../modals/memberModal";
 // import CreateChannelModal from "../modals/channelModal";
 import InviteModal from "../modals/inviteModal";
 
@@ -86,8 +86,12 @@ export function ServerOptions({ inviteCode, serverId }: ServerOptionProps) {
           <span>Delete Server</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-      {/* <ManageMembersModal />
-      <CreateChannelModal /> */}
+      <ManageMembersModal
+        isOpen={memberModal}
+        onClose={() => setMemberModal(false)}
+        serverId={serverId}
+      />
+      {/* <CreateChannelModal /> */}
       <InviteModal
         open={inviteModal}
         inviteCode={inviteCode}

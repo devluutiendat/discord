@@ -9,7 +9,7 @@ interface ChannelsProps {
   channelList: channelDetail[];
 }
 
-const Channels = ({ channelList }: ChannelsProps) => {
+const ChannelList = ({ channelList }: ChannelsProps) => {
   const [channelSelected, setChannelSelected] = useState("");
 
   const textChannels = channelList.filter(
@@ -134,4 +134,4 @@ const Channels = ({ channelList }: ChannelsProps) => {
   );
 };
 
-export default Channels;
+export default ChannelList;
